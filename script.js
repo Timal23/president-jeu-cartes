@@ -22,6 +22,8 @@ let joueurActif = 0;
 let cartesPoseesSurPli = 0;
 let valeurPliActuel = '';
 let partieTerminer = false;
+let president =null;
+let trouDuCul = null;
 
 
 
@@ -130,6 +132,8 @@ document.querySelector('#jouer').addEventListener('click', function(){
             if (joueurs[joueurActif].main.length ===0){
                 message.textContent = `Joueur ${joueurActif +1}  a gagné!`
                 partieTerminer =true;
+                president = joueurs[joueurActif];
+                trouDuCul = joueurs[(joueurActif + 1) % joueurs.length];
             }
         });  
         cartesSelection =[];
@@ -158,7 +162,7 @@ document.querySelector('#jouer').addEventListener('click', function(){
             conteneursJoueur[i].innerHTML ="";
             afficherMain(joueur, conteneursJoueur[i]);
         });
-        console.log(dernierCoup);
+        
     } else {
         message.textContent = "Carte jouées non valide";
     }
@@ -174,11 +178,16 @@ document.getElementById('passer').addEventListener('click', function() {
     })
 })
 
+
+
 function initialiserPartie(){
     joueurs[0].main = [];
     joueurs[1].main = [];
     melangerPaquet(paquet);
     distribuerCartes(joueurs);
+    if (president !==null) {
+        echangerCartes();
+    }
     joueurActif = 0;
     dernierCoup = [];
     cartesSelection = [];
@@ -196,3 +205,21 @@ function initialiserPartie(){
 document.getElementById('rejouer').addEventListener('click', function() {
     initialiserPartie();
 })
+
+function echangerCartes() {
+    const mainPresidentTriee = president.main.sort((a, b) => getForce(a) - getForce(b));
+    const pireCartes = mainPresidentTriee.slice(0 ,2)
+    const mainTrouDuCulTriee = trouDuCul.main.sort((a, b) => getForce(a) - getForce(b));
+    const meilleuresCartes = mainTrouDuCulTriee.slice(-2)
+
+    console.log("Pires cartes du président:", pireCartes);
+    console.log("Meilleures cartes du trou du cul:", meilleuresCartes);
+    president.main = president.main.filter(c => !pireCartes.includes(c)); // Retirer les pires cartes du président
+    trouDuCul.main = trouDuCul.main.filter(c => !meilleuresCartes.includes(c)); // celle du trou du cul
+    president.main.push(...meilleuresCartes);
+    trouDuCul.main.push(...pireCartes);
+
+
+    console.log("Main du président après échange:", president.main);
+    console.log("Main du trou du cul après échange:", trouDuCul.main);
+}
