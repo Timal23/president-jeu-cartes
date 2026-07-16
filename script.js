@@ -102,32 +102,24 @@ function coupEstValide(cartesJouees) {
         [dernierCoup.length - 1].carte);
 }
 
-document.body.appendChild(message);
-document.querySelector('#jouer').addEventListener('click', function(){
-    if (partieTerminer) return;
-    if(cartesSelection.length === 0) {
-        message.textContent = "Sélectionner au moins une carte";
-    } else if (coupEstValide(cartesSelection)) {
+function jouerCoup(cartesJouees) {
         let pliTermine = false
-        dernierCoup = [...cartesSelection];
+        dernierCoup = [...cartesJouees];
+        nbCartesJouees = cartesJouees.length;
         const valeurActuelle = dernierCoup[0].carte.valeur;
         if(valeurActuelle !== valeurPliActuel) {
             cartesPoseesSurPli = 0;
             valeurPliActuel = valeurActuelle;
         } 
         cartesPoseesSurPli += dernierCoup.length;
-        if (cartesPoseesSurPli >=4) {
-            pliTermine = true;
-        }
-        
+        if (cartesPoseesSurPli >=4) pliTermine = true;
         if (dernierCoup[0].carte.valeur === '2') {
             dernierCoup = [];
             pliTermine = true
         }
        
-
-        cartesSelection.forEach(({carte, element}) => {
-            element.remove();
+       cartesJouees.forEach(({carte, element}) => {
+            if(element) element.remove();
             joueurs[joueurActif].main = joueurs[joueurActif].main.filter(c => c !== carte);
             if (joueurs[joueurActif].main.length ===0){
                 message.textContent = `Joueur ${joueurActif +1}  a gagné!`
@@ -144,11 +136,12 @@ document.querySelector('#jouer').addEventListener('click', function(){
             const info = symboles[carte.carte.couleur];
             carteElement.innerHTML = `
                 <div class="carte-coin">${carte.carte.valeur}<br>${info.symbole}</div>
-                <div class="carte-centre>${info.symbole}</div>
+                <div class="carte-centre">${info.symbole}</div>
             `;
             if (info.couleur === 'rouge') carteElement.classList.add('carte-rouge');
             conteneurPli.appendChild(carteElement);  
-        })
+        });
+
         if (!pliTermine) {
             joueurActif = (joueurActif + 1) % joueurs.length;
         }
@@ -158,11 +151,55 @@ document.querySelector('#jouer').addEventListener('click', function(){
             valeurPliActuel = '';
             dernierCoup = [];
         }
+
         joueurs.forEach((joueur, i) => {
             conteneursJoueur[i].innerHTML ="";
             afficherMain(joueur, conteneursJoueur[i]);
         });
-        
+
+        if (joueurActif === 1 && !partieTerminer) {
+            setTimeout(() => jouerIA(nbCartesJouees),1500)   
+        }
+}
+console.log(dernierCoup.length)
+function jouerIA(nbCartes = 1) {
+    const mainTriee = joueurs[1].main.sort((a, b) => getForce(a) - getForce(b));
+    //const nbCartes = dernierCoup.length || 1;
+    const carteTrouvee = mainTriee.find(carte => 
+        dernierCoup.length === 0 || getForce(carte) > getForce(dernierCoup[dernierCoup.length - 1].carte)
+    );
+
+    if (carteTrouvee) {
+        const cartesMemValeur = mainTriee.filter(c => c.valeur === carteTrouvee.valeur);
+        if (cartesMemValeur.length >= nbCartes){
+            const cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({carte: c, element: null}));
+            jouerCoup(cartesAJouer);
+        } else {
+            passerIA();
+        }
+    } else {
+        passerIA();
+    }     
+}
+
+function passerIA() {
+    dernierCoup = [];
+    cartesPoseesSurPli = 0;
+    valeurPliActuel = '';
+    joueurActif = (joueurActif + 1) % joueurs.length;
+    joueurs.forEach((joueur, i) => {
+        conteneursJoueur[i].innerHTML = "";
+        afficherMain(joueur, conteneursJoueur[i]);
+    });
+}
+
+document.body.appendChild(message);
+document.querySelector('#jouer').addEventListener('click', function(){
+    if (partieTerminer) return;
+    if(cartesSelection.length === 0) {
+        message.textContent = "Sélectionner au moins une carte"
+    } else if (coupEstValide(cartesSelection)) {
+        jouerCoup(cartesSelection);
     } else {
         message.textContent = "Carte jouées non valide";
     }
@@ -176,6 +213,9 @@ document.getElementById('passer').addEventListener('click', function() {
         conteneursJoueur[i].innerHTML = "";
         afficherMain(joueur, conteneursJoueur[i]);
     })
+    if(joueurActif === 1 && !partieTerminer) {
+        setTimeout(() => jouerIA(), 1500)
+    }
 })
 
 
@@ -212,14 +252,9 @@ function echangerCartes() {
     const mainTrouDuCulTriee = trouDuCul.main.sort((a, b) => getForce(a) - getForce(b));
     const meilleuresCartes = mainTrouDuCulTriee.slice(-2)
 
-    console.log("Pires cartes du président:", pireCartes);
-    console.log("Meilleures cartes du trou du cul:", meilleuresCartes);
     president.main = president.main.filter(c => !pireCartes.includes(c)); // Retirer les pires cartes du président
     trouDuCul.main = trouDuCul.main.filter(c => !meilleuresCartes.includes(c)); // celle du trou du cul
     president.main.push(...meilleuresCartes);
     trouDuCul.main.push(...pireCartes);
-
-
-    console.log("Main du président après échange:", president.main);
-    console.log("Main du trou du cul après échange:", trouDuCul.main);
 }
+
