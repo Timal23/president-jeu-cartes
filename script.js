@@ -54,6 +54,7 @@ function distribuerCartes(joueurs) {
 distribuerCartes(joueurs); // on appelle la fonction pour remplir la main de chaque joueur
 
 function afficherMain(joueur, conteneur) {
+    joueur.main.sort((a, b) => getForce(a) - getForce(b));
     joueur.main.forEach((carte) => {
         const carteElement = document.createElement('div');
         carteElement.classList.add('carte'); // Ajoute une classe CSS pour styliser la carte .add: ajoute une classe CSS pour styliser la carte
@@ -165,21 +166,30 @@ console.log(dernierCoup.length)
 function jouerIA(nbCartes = 1) {
     const mainTriee = joueurs[1].main.sort((a, b) => getForce(a) - getForce(b));
     //const nbCartes = dernierCoup.length || 1;
-    const carteTrouvee = mainTriee.find(carte => 
-        dernierCoup.length === 0 || getForce(carte) > getForce(dernierCoup[dernierCoup.length - 1].carte)
-    );
 
-    if (carteTrouvee) {
-        const cartesMemValeur = mainTriee.filter(c => c.valeur === carteTrouvee.valeur);
-        if (cartesMemValeur.length >= nbCartes){
-            const cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({carte: c, element: null}));
-            jouerCoup(cartesAJouer);
-        } else {
-            passerIA();
-        }
+    let cartesAJouer;
+
+    if (dernierCoup.length === 0) {
+        // Pli vide : jouer toutes les cartes de la valeur la plus faible
+        const valeurLaPlusFaible = mainTriee[0].valeur;
+        cartesAJouer = mainTriee
+            .filter(c => c.valeur === valeurLaPlusFaible)
+            .map(c => ({carte: c, element: null}));
     } else {
-        passerIA();
-    }     
+        // Pli non vide : trouver une carte qui bat le dernier coup
+        const carteTrouvee = mainTriee.find(carte => 
+            getForce(carte) > getForce(dernierCoup[dernierCoup.length - 1].carte)
+        );
+        if (!carteTrouvee) return passerIA();
+        const cartesMemValeur = mainTriee.filter(c => c.valeur === carteTrouvee.valeur);
+        if (cartesMemValeur.length >= nbCartes) {
+            cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({ carte: c, element: null }));
+        } else {
+            return passerIA();
+        }
+    }
+    
+    jouerCoup(cartesAJouer);    
 }
 
 function passerIA() {
@@ -228,7 +238,7 @@ function initialiserPartie(){
     if (president !==null) {
         echangerCartes();
     }
-    joueurActif = 0;
+    joueurActif = trouDuCul !== null ? joueurs.indexOf(trouDuCul) : 0;
     dernierCoup = [];
     cartesSelection = [];
     cartesPoseesSurPli =0;
@@ -240,6 +250,9 @@ function initialiserPartie(){
     message.textContent = '';
     afficherMain(joueurs[0], conteneurJoueur1);
     afficherMain(joueurs[1], conteneurJoueur2);
+    if (joueurActif === 1 && !partieTerminer){
+        setTimeout(() => jouerIA(), 1500);
+    }
 }
 
 document.getElementById('rejouer').addEventListener('click', function() {
