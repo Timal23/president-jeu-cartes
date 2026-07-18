@@ -1,3 +1,6 @@
+// ═══════════════════════════════════════════════════
+// VARIABLES GLOBALES (identiques, on ne change rien)
+// ═══════════════════════════════════════════════════
 const couleurs = ['coeur', 'carreau', 'trèfle', 'pique'];
 const valeurs = ['3', '4', '5', '6', '7', '8', '9', '10', 'Valet', 'Dame', 'Roi', 'As', '2'];
 const symboles = {
@@ -9,31 +12,63 @@ const symboles = {
 const paquet = [];
 let dernierCoup = [];
 let joueurs = [
-    {nom: "Joueur 1", main: []},
-    {nom: "Joueur 2", main: []}
-]
+    { nom: "Joueur 1", main: [] },
+    { nom: "Joueur 2", main: [] }
+];
 let cartesSelection = [];
-const message = document.createElement('p');
-const conteneurJoueur1 = document.getElementById('main-joueur1');
-const conteneurJoueur2 = document.getElementById('main-joueur2');
-const conteneursJoueur = [conteneurJoueur1, conteneurJoueur2];
-const conteneurPli = document.getElementById('pli');
 let joueurActif = 0;
 let cartesPoseesSurPli = 0;
 let valeurPliActuel = '';
 let partieTerminer = false;
-let president =null;
+let president = null;
 let trouDuCul = null;
+let nbCartesJouees = 1;
 
+// ═══════════════════════════════════════════════════
+// RÉFÉRENCES DOM (nouveau HTML)
+// ═══════════════════════════════════════════════════
+const conteneurJoueur1 = document.getElementById('main-joueur1');
+const conteneurJoueur2 = document.getElementById('main-joueur2');
+const conteneursJoueur  = [conteneurJoueur1, conteneurJoueur2];
+const conteneurPli      = document.getElementById('pli');
+const messageZone       = document.getElementById('message-zone');
+const indicateurTour    = document.getElementById('texte-tour');
+const statutAction      = document.getElementById('statut-action');
+const pulseDot          = document.getElementById('pulse-dot');
 
+// ═══════════════════════════════════════════════════
+// UTILITAIRES
+// ═══════════════════════════════════════════════════
+function setMessage(txt) {
+    messageZone.textContent = txt;
+}
 
+function setStatut(txt) {
+    statutAction.textContent = txt;
+}
 
-couleurs.forEach((couleur) => {
-    valeurs.forEach((valeur) => {
-            paquet.push({ couleur, valeur });
-        })
+function setIndicateurTour() {
+    if (joueurActif === 0) {
+        indicateurTour.textContent = 'À toi de jouer';
+        pulseDot.style.background = '#ffd23e';
+    } else {
+        indicateurTour.textContent = "Tour de l'IA…";
+        pulseDot.style.background = 'rgba(255,255,255,0.4)';
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// GÉNÉRATION DU PAQUET
+// ═══════════════════════════════════════════════════
+couleurs.forEach(couleur => {
+    valeurs.forEach(valeur => {
+        paquet.push({ couleur, valeur });
+    });
 });
 
+// ═══════════════════════════════════════════════════
+// MÉLANGE (Fisher-Yates)
+// ═══════════════════════════════════════════════════
 function melangerPaquet(paquet) {
     for (let i = paquet.length - 1; i >= 1; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -44,230 +79,317 @@ function melangerPaquet(paquet) {
 }
 melangerPaquet(paquet);
 
-// Fonction qui distribue toutes les cartes du paquet aux joueurs, une par une à tour de rôle
+// ═══════════════════════════════════════════════════
+// DISTRIBUTION
+// ═══════════════════════════════════════════════════
 function distribuerCartes(joueurs) {
-    paquet.forEach((carte, i) => { // on parcourt chaque carte du paquet avec son index i
-        joueurs[i % joueurs.length].main.push(carte); // le modulo alterne entre les joueurs pour distribuer à tour de rôle
+    paquet.forEach((carte, i) => {
+        joueurs[i % joueurs.length].main.push(carte);
+    });
+}
+distribuerCartes(joueurs);
+
+// ═══════════════════════════════════════════════════
+// CRÉER UNE CARTE HTML
+// ═══════════════════════════════════════════════════
+function creerCarteElement(carte, classes = []) {
+    const el = document.createElement('div');
+    el.classList.add('carte', ...classes);
+    if (carte === 'dos') {
+        el.classList.add('carte-dos');
+        return el;
+    }
+    const info = symboles[carte.couleur];
+    const isRouge = info.couleur === 'rouge';
+    if (isRouge) el.classList.add('carte-rouge');
+    el.innerHTML = `
+        <div class="carte-coin-tl">${carte.valeur}<br>${info.symbole}</div>
+        <div class="carte-centre">${info.symbole}</div>
+        <div class="carte-coin-br">${carte.valeur}<br>${info.symbole}</div>
+    `;
+    return el;
+}
+
+// ═══════════════════════════════════════════════════
+// AFFICHER MAIN EN ÉVENTAIL
+// ═══════════════════════════════════════════════════
+function afficherMain(joueur, conteneur) {
+    conteneur.innerHTML = '';
+    joueur.main.sort((a, b) => getForce(a) - getForce(b));
+
+    const n = joueur.main.length;
+    if (n === 0) return;
+
+    const estActif = joueurs.indexOf(joueur) === joueurActif;
+    const spread   = Math.min(5, 80 / n); // degrés entre chaque carte
+    const offsetX  = Math.min(52, 560 / n); // px entre chaque carte
+
+    joueur.main.forEach((carte, i) => {
+        const milieu  = (n - 1) / 2;
+        const delta   = i - milieu;
+        const rotation = delta * spread;
+        const translateY = Math.abs(delta) * 2.5; // arc léger
+
+        let el;
+        if (estActif) {
+            el = creerCarteElement(carte);
+        } else {
+            el = creerCarteElement('dos');
+        }
+
+        el.style.left   = `calc(50% + ${delta * offsetX}px - var(--card-w) / 2)`;
+        el.style.bottom = `${translateY}px`;
+        el.style.transform = `rotate(${rotation}deg)`;
+        el.style.zIndex = i;
+        el.style.transformOrigin = 'bottom center';
+
+        if (estActif) {
+            el.addEventListener('click', () => {
+                if (joueurs.indexOf(joueur) !== joueurActif) return;
+
+                if (el.classList.contains('selection')) {
+                    cartesSelection = cartesSelection.filter(c => c.carte !== carte);
+                    el.classList.remove('selection');
+                    el.style.bottom = `${translateY}px`;
+                } else {
+                    cartesSelection.push({ carte, element: el });
+                    el.classList.add('selection');
+                    el.style.bottom = `${translateY + 20}px`;
+                }
+            });
+        }
+
+        conteneur.appendChild(el);
     });
 }
 
-distribuerCartes(joueurs); // on appelle la fonction pour remplir la main de chaque joueur
+// ═══════════════════════════════════════════════════
+// AFFICHER LE PLI
+// ═══════════════════════════════════════════════════
+function afficherPli() {
+    conteneurPli.innerHTML = '';
+    dernierCoup.forEach((item, i) => {
+        const el = creerCarteElement(item.carte, ['carte-pli']);
+        const delta = i - (dernierCoup.length - 1) / 2;
+        el.style.transform = `rotate(${delta * 8}deg)`;
+        el.style.position = 'relative';
+        el.style.marginLeft = i === 0 ? '0' : '-20px';
+        el.style.zIndex = i;
+        conteneurPli.appendChild(el);
+    });
+}
 
-function afficherMain(joueur, conteneur) {
-    joueur.main.sort((a, b) => getForce(a) - getForce(b));
-    joueur.main.forEach((carte) => {
-        const carteElement = document.createElement('div');
-        carteElement.classList.add('carte'); // Ajoute une classe CSS pour styliser la carte .add: ajoute une classe CSS pour styliser la carte
-        if (joueurs.indexOf(joueur) === joueurActif) {
-            const info = symboles[carte.couleur];
-            carteElement.innerHTML = `
-                <div class="carte-coin">${carte.valeur}<br>${info.symbole}</div>
-                <div class="carte-centre">${info.symbole}</div>
-            `;
-            if (info.couleur === 'rouge') carteElement.classList.add('carte-rouge');
-        } else {
-            carteElement.classList.add('carte-dos');
-        }
-        conteneur.appendChild(carteElement);
-        carteElement.addEventListener('click', function(){
-            if (joueurs.indexOf(joueur) !== joueurActif) {
-                return
-            }
-            if (carteElement.classList.contains('selection')) {
-                cartesSelection = cartesSelection.filter(c =>c.carte !== carte);
-                carteElement.classList.remove ('selection');
-            } else {
-                carteElement.classList.add('selection');
-                cartesSelection.push({carte, element: carteElement});
-            } 
-        })
-    });  
-};
-afficherMain(joueurs[0], conteneurJoueur1);
-afficherMain(joueurs[1], conteneurJoueur2);
-
-
+// ═══════════════════════════════════════════════════
+// LOGIQUE DE JEU (identique)
+// ═══════════════════════════════════════════════════
 function getForce(carte) {
     return valeurs.indexOf(carte.valeur);
 }
 
-
 function coupEstValide(cartesJouees) {
-    if(!cartesJouees.every(carte => carte.carte.valeur === cartesJouees[0].carte.valeur)) {
-        return false;
-    }
-    if (dernierCoup.length === 0) {
-        return true;  
-    }
-    return cartesJouees.length === dernierCoup.length && getForce(cartesJouees[0].carte) >= getForce(dernierCoup
-        [dernierCoup.length - 1].carte);
+    if (!cartesJouees.every(c => c.carte.valeur === cartesJouees[0].carte.valeur)) return false;
+    if (dernierCoup.length === 0) return true;
+    return cartesJouees.length === dernierCoup.length &&
+        getForce(cartesJouees[0].carte) >= getForce(dernierCoup[dernierCoup.length - 1].carte);
 }
 
 function jouerCoup(cartesJouees) {
-        let pliTermine = false
-        dernierCoup = [...cartesJouees];
-        nbCartesJouees = cartesJouees.length;
-        const valeurActuelle = dernierCoup[0].carte.valeur;
-        if(valeurActuelle !== valeurPliActuel) {
-            cartesPoseesSurPli = 0;
-            valeurPliActuel = valeurActuelle;
-        } 
-        cartesPoseesSurPli += dernierCoup.length;
-        if (cartesPoseesSurPli >=4) pliTermine = true;
-        if (dernierCoup[0].carte.valeur === '2') {
-            dernierCoup = [];
-            pliTermine = true
-        }
-       
-       cartesJouees.forEach(({carte, element}) => {
-            if(element) element.remove();
-            joueurs[joueurActif].main = joueurs[joueurActif].main.filter(c => c !== carte);
-            if (joueurs[joueurActif].main.length ===0){
-                message.textContent = `Joueur ${joueurActif +1}  a gagné!`
-                partieTerminer =true;
-                president = joueurs[joueurActif];
-                trouDuCul = joueurs[(joueurActif + 1) % joueurs.length];
-            }
-        });  
-        cartesSelection =[];
-        conteneurPli.innerHTML ='';
-        dernierCoup.forEach((carte) => {
-            const carteElement = document.createElement('div');
-            carteElement.classList.add('carte');                              
-            const info = symboles[carte.carte.couleur];
-            carteElement.innerHTML = `
-                <div class="carte-coin">${carte.carte.valeur}<br>${info.symbole}</div>
-                <div class="carte-centre">${info.symbole}</div>
-            `;
-            if (info.couleur === 'rouge') carteElement.classList.add('carte-rouge');
-            conteneurPli.appendChild(carteElement);  
-        });
+    let pliTermine = false;
+    dernierCoup = [...cartesJouees];
+    nbCartesJouees = cartesJouees.length;
 
-        if (!pliTermine) {
-            joueurActif = (joueurActif + 1) % joueurs.length;
-        }
-         if (pliTermine) {
-            conteneurPli.innerHTML ='';
-            cartesPoseesSurPli = 0;
-            valeurPliActuel = '';
-            dernierCoup = [];
-        }
-
-        joueurs.forEach((joueur, i) => {
-            conteneursJoueur[i].innerHTML ="";
-            afficherMain(joueur, conteneursJoueur[i]);
-        });
-
-        if (joueurActif === 1 && !partieTerminer) {
-            setTimeout(() => jouerIA(nbCartesJouees),1500)   
-        }
-}
-console.log(dernierCoup.length)
-function jouerIA(nbCartes = 1) {
-    const mainTriee = joueurs[1].main.sort((a, b) => getForce(a) - getForce(b));
-    //const nbCartes = dernierCoup.length || 1;
-
-    let cartesAJouer;
-
-    if (dernierCoup.length === 0) {
-        // Pli vide : jouer toutes les cartes de la valeur la plus faible
-        const valeurLaPlusFaible = mainTriee[0].valeur;
-        cartesAJouer = mainTriee
-            .filter(c => c.valeur === valeurLaPlusFaible)
-            .map(c => ({carte: c, element: null}));
-    } else {
-        // Pli non vide : trouver une carte qui bat le dernier coup
-        const carteTrouvee = mainTriee.find(carte => 
-            getForce(carte) > getForce(dernierCoup[dernierCoup.length - 1].carte)
-        );
-        if (!carteTrouvee) return passerIA();
-        const cartesMemValeur = mainTriee.filter(c => c.valeur === carteTrouvee.valeur);
-        if (cartesMemValeur.length >= nbCartes) {
-            cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({ carte: c, element: null }));
-        } else {
-            return passerIA();
-        }
+    const valeurActuelle = dernierCoup[0].carte.valeur;
+    if (valeurActuelle !== valeurPliActuel) {
+        cartesPoseesSurPli = 0;
+        valeurPliActuel = valeurActuelle;
     }
-    
-    jouerCoup(cartesAJouer);    
+    cartesPoseesSurPli += dernierCoup.length;
+    if (cartesPoseesSurPli >= 4) pliTermine = true;
+    if (dernierCoup[0].carte.valeur === '2') {
+        pliTermine = true;
+    }
+    let partieGagnee = false;
+    // Retirer les cartes jouées
+    cartesJouees.forEach(({ carte, element }) => {
+        if (element) element.remove();
+        joueurs[joueurActif].main = joueurs[joueurActif].main.filter(c => c !== carte);
+        if (joueurs[joueurActif].main.length === 0) {
+            setMessage(`🏆 Joueur ${joueurActif + 1} a gagné !`);
+            setStatut(joueurActif === 0 ? 'Tu es Président !' : "L'IA est Présidente !");
+            partieTerminer = true;
+            president = joueurs[joueurActif];
+            trouDuCul = joueurs[(joueurActif + 1) % joueurs.length];
+            partieGagnee = true;
+        }
+    });
+
+    if (partieGagnee) return;
+
+    cartesSelection = [];
+
+    // Afficher le pli
+    if (!pliTermine) {
+        afficherPli();
+        setStatut(`${joueurs[joueurActif].nom} pose ${cartesJouees.length}× ${cartesJouees[0].carte.valeur}`);
+    }
+
+    // Changer de joueur ou fermer le pli
+    if (!pliTermine) {
+        joueurActif = (joueurActif + 1) % joueurs.length;
+    }
+    if (pliTermine) {
+        conteneurPli.innerHTML = '';
+        cartesPoseesSurPli = 0;
+        valeurPliActuel = '';
+        if (dernierCoup[0]?.carte.valeur === '2') {
+            setStatut(`${joueurs[joueurActif].nom} joue un 2 — pli fermé !`);
+        } else {
+            setStatut('4 cartes identiques — pli fermé !');
+        }
+        dernierCoup = [];
+    }
+
+    // Réafficher les mains
+    joueurs.forEach((joueur, i) => {
+        conteneursJoueur[i].innerHTML = '';
+        afficherMain(joueur, conteneursJoueur[i]);
+    });
+
+    setIndicateurTour();
+    setMessage('');
+
+    if (joueurActif === 1 && !partieTerminer) {
+        setTimeout(() => jouerIA(nbCartesJouees), 1500);
+    }
 }
 
+// ═══════════════════════════════════════════════════
+// IA
+// ═══════════════════════════════════════════════════
 function passerIA() {
     dernierCoup = [];
     cartesPoseesSurPli = 0;
     valeurPliActuel = '';
     joueurActif = (joueurActif + 1) % joueurs.length;
+    setStatut("L'IA passe son tour");
     joueurs.forEach((joueur, i) => {
-        conteneursJoueur[i].innerHTML = "";
+        conteneursJoueur[i].innerHTML = '';
         afficherMain(joueur, conteneursJoueur[i]);
     });
+    setIndicateurTour();
 }
 
-document.body.appendChild(message);
-document.querySelector('#jouer').addEventListener('click', function(){
-    if (partieTerminer) return;
-    if(cartesSelection.length === 0) {
-        message.textContent = "Sélectionner au moins une carte"
-    } else if (coupEstValide(cartesSelection)) {
-        jouerCoup(cartesSelection);
+function jouerIA(nbCartes = 1) {
+    const mainTriee = joueurs[1].main.sort((a, b) => getForce(a) - getForce(b));
+    let cartesAJouer;
+
+    if (dernierCoup.length === 0) {
+        const valeurLaPlusFaible = mainTriee[0].valeur;
+        cartesAJouer = mainTriee
+            .filter(c => c.valeur === valeurLaPlusFaible)
+            .map(c => ({ carte: c, element: null }));
     } else {
-        message.textContent = "Carte jouées non valide";
+        const valeurTrouvee = valeurs.find(valeur =>
+            mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
+            &&
+            valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
+        );
+        if (!valeurTrouvee) return passerIA();
+        const cartesMemValeur = mainTriee.filter(c => c.valeur === valeurTrouvee);
+            cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({ carte: c, element: null }));
+        
     }
-})
-
-document.getElementById('passer').addEventListener('click', function() {
-    if(partieTerminer)return
-    dernierCoup = [];
-    joueurActif = (joueurActif + 1) % joueurs.length;
-    joueurs.forEach((joueur, i) => {
-        conteneursJoueur[i].innerHTML = "";
-        afficherMain(joueur, conteneursJoueur[i]);
-    })
-    if(joueurActif === 1 && !partieTerminer) {
-        setTimeout(() => jouerIA(), 1500)
-    }
-})
-
-
-
-function initialiserPartie(){
-    joueurs[0].main = [];
-    joueurs[1].main = [];
-    melangerPaquet(paquet);
-    distribuerCartes(joueurs);
-    if (president !==null) {
-        echangerCartes();
-    }
-    joueurActif = trouDuCul !== null ? joueurs.indexOf(trouDuCul) : 0;
-    dernierCoup = [];
-    cartesSelection = [];
-    cartesPoseesSurPli =0;
-    valeurPliActuel ='';
-    partieTerminer = false;
-    conteneurJoueur1.innerHTML = '';
-    conteneurJoueur2.innerHTML = '';
-    conteneurPli.innerHTML ='';
-    message.textContent = '';
-    afficherMain(joueurs[0], conteneurJoueur1);
-    afficherMain(joueurs[1], conteneurJoueur2);
-    if (joueurActif === 1 && !partieTerminer){
-        setTimeout(() => jouerIA(), 1500);
-    }
+    jouerCoup(cartesAJouer);
 }
 
-document.getElementById('rejouer').addEventListener('click', function() {
-    initialiserPartie();
-})
-
+// ═══════════════════════════════════════════════════
+// ÉCHANGE DE CARTES
+// ═══════════════════════════════════════════════════
 function echangerCartes() {
     const mainPresidentTriee = president.main.sort((a, b) => getForce(a) - getForce(b));
-    const pireCartes = mainPresidentTriee.slice(0 ,2)
+    const pireCartes = mainPresidentTriee.slice(0, 2);
     const mainTrouDuCulTriee = trouDuCul.main.sort((a, b) => getForce(a) - getForce(b));
-    const meilleuresCartes = mainTrouDuCulTriee.slice(-2)
-
-    president.main = president.main.filter(c => !pireCartes.includes(c)); // Retirer les pires cartes du président
-    trouDuCul.main = trouDuCul.main.filter(c => !meilleuresCartes.includes(c)); // celle du trou du cul
+    const meilleuresCartes = mainTrouDuCulTriee.slice(-2);
+    president.main = president.main.filter(c => !pireCartes.includes(c));
+    trouDuCul.main = trouDuCul.main.filter(c => !meilleuresCartes.includes(c));
     president.main.push(...meilleuresCartes);
     trouDuCul.main.push(...pireCartes);
 }
 
+// ═══════════════════════════════════════════════════
+// INITIALISER PARTIE
+// ═══════════════════════════════════════════════════
+function initialiserPartie() {
+    joueurs[0].main = [];
+    joueurs[1].main = [];
+    melangerPaquet(paquet);
+    distribuerCartes(joueurs);
+
+    if (president !== null) echangerCartes();
+
+    joueurActif = trouDuCul !== null ? joueurs.indexOf(trouDuCul) : 0;
+    dernierCoup = [];
+    cartesSelection = [];
+    cartesPoseesSurPli = 0;
+    valeurPliActuel = '';
+    partieTerminer = false;
+
+    conteneurPli.innerHTML = '';
+    setMessage('');
+    setStatut('Nouvelle partie — à toi de jouer !');
+    setIndicateurTour();
+
+    joueurs.forEach((joueur, i) => {
+        conteneursJoueur[i].innerHTML = '';
+        afficherMain(joueur, conteneursJoueur[i]);
+    });
+
+    if (joueurActif === 1 && !partieTerminer) {
+        setTimeout(() => jouerIA(), 1500);
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════════════════
+document.getElementById('jouer').addEventListener('click', () => {
+    if (partieTerminer) return;
+    if (cartesSelection.length === 0) {
+        setMessage('Sélectionne au moins une carte !');
+        return;
+    }
+    if (!coupEstValide(cartesSelection)) {
+        setMessage('Coup invalide — carte trop faible ou nombre incorrect');
+        return;
+    }
+    jouerCoup(cartesSelection);
+});
+
+document.getElementById('passer').addEventListener('click', () => {
+    if (partieTerminer) return;
+    dernierCoup = [];
+    cartesPoseesSurPli = 0;
+    valeurPliActuel = '';
+    conteneurPli.innerHTML = '';
+    setStatut('Tu passes ton tour');
+    joueurActif = (joueurActif + 1) % joueurs.length;
+    joueurs.forEach((joueur, i) => {
+        conteneursJoueur[i].innerHTML = '';
+        afficherMain(joueur, conteneursJoueur[i]);
+    });
+    setIndicateurTour();
+    if (joueurActif === 1 && !partieTerminer) {
+        setTimeout(() => jouerIA(), 1500);
+    }
+});
+
+document.getElementById('rejouer').addEventListener('click', () => {
+    initialiserPartie();
+});
+
+// ═══════════════════════════════════════════════════
+// LANCEMENT
+// ═══════════════════════════════════════════════════
+setIndicateurTour();
+afficherMain(joueurs[0], conteneurJoueur1);
+afficherMain(joueurs[1], conteneurJoueur2);

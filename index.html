@@ -3,26 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Président — Bar des As</title>
+    <title>Le Président</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h2>Joueur 2</h2>
-    <div id="main-joueur2"></div>
-
-    <div class="comptoir">
-        <span id="pli-label">Pli</span>
-        <div id="pli"></div>
-        <div class="boutons">
-            <button id="rejouer">Rejouer</button>
-            <button id="passer">Passer</button>
-            <button id="jouer">Jouer</button>
+    <!-- MAIN ADVERSAIRE (face cachée) -->
+    <div class="zone-adversaire">
+        <div class="adversaire-label">
+            <span class="dot-adversaire"></span>
+            Joueur 2
         </div>
+        <div class="main-eventail" id="main-joueur2"></div>
     </div>
 
-    <h2>Joueur 1</h2>
-    <div id="main-joueur1"></div>
+    <!-- TAPIS CENTRAL -->
+    <div class="tapis">
+
+        <!-- Indicateur de tour -->
+        <div class="indicateur-tour" id="indicateur-tour">
+            <span class="pulse-dot" id="pulse-dot"></span>
+            <span id="texte-tour">À toi de jouer</span>
+        </div>
+
+        <!-- Zone des cartes jouées (pli) -->
+        <div class="pli-zone" id="pli"></div>
+
+        <!-- Statut dernière action -->
+        <div class="statut-action" id="statut-action"></div>
+
+    </div>
+
+    <!-- MAIN JOUEUR 1 (éventail) -->
+    <div class="zone-joueur">
+        <div class="main-eventail" id="main-joueur1"></div>
+
+        <!-- Boutons -->
+        <div class="boutons-zone">
+            <button id="rejouer" class="btn-rejouer">↺ Rejouer</button>
+            <button id="passer" class="btn-passer">Passer</button>
+            <button id="jouer" class="btn-jouer">Jouer</button>
+        </div>
+
+        <!-- Message -->
+        <div id="message-zone"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
