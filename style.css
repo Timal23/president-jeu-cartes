@@ -19,17 +19,18 @@
 
 /* ── BODY ── */
 body {
-    background: linear-gradient(160deg, #1a3a4a 0%, #0d2233 100%);
+    background: linear-gradient(180deg, #0d2233 0%, #1a3a4a 55%, #2a9d8f 100%);
     font-family: 'Nunito', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 12px;
     gap: 12px;
     overflow-x: hidden;
+    padding: 16px 12px;
 }
+
 
 /* ── ZONE ADVERSAIRE ── */
 .zone-adversaire {
@@ -289,3 +290,83 @@ button {
     min-height: 20px;
     text-align: center;
 }
+
+#ecran-jeu {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 12px;
+}
+
+#ecran-accueil {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+#ecran-accueil h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(48px, 13vw, 128px);
+    color: var(--creme);
+    text-align: center;
+    text-shadow: 0 4px 0 var(--corail-ombre), 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.accueil-soustitre {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(14px, 3vw, 18px);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+}
+.couronne {
+    width: clamp(120px, 30vw, 200px);
+    height: auto;
+    color: var(--jaune);
+}
+
+.cartes-deco {
+    display: flex;
+    justify-content: center;
+}
+
+.carte-deco {
+    width: clamp(70px, 18vw, 110px);
+    height: clamp(100px, 26vw, 155px);
+    background: var(--creme);
+    border-radius: 12px;
+    box-shadow: 0 14px 28px rgba(0,0,0,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(40px, 10vw, 64px);
+    color: var(--texte-sombre);
+    margin: 0 -12px;
+}
+
+.carte-pique  { animation: flotter-pique 3.5s ease-in-out infinite; }
+.carte-coeur  { animation: flotter-coeur 3.5s ease-in-out infinite; animation-delay: 0.6s; color: var(--rouge-carte); }
+.carte-trefle { animation: flotter-trefle 3.5s ease-in-out infinite; animation-delay: 1.2s; }
+
+@keyframes flotter-pique {
+    0%, 100% { transform: rotate(-14deg) translateY(0); }
+    50% { transform:  rotate(-14deg) translateY(-12px); }
+}
+
+@keyframes flotter-coeur {
+    0%, 100% { transform: rotate(5deg) translateX(0); }
+    50% { transform: rotate(5deg) translateY(-12px); }
+}
+
+@keyframes flotter-trefle {
+    0%, 100% { transform: rotate(16deg) translateX(0); }
+    50% { transform: rotate(16deg) translateY(-12px); }
+}
+

@@ -10,47 +10,68 @@
 </head>
 <body>
 
+    <div id="ecran-accueil">
+        <svg class="couronne" viewBox="0 0 64 64" fill="currentColor">
+            <path d="M6 44 L2 18 l14 10 L32 8 l16 20 14 -10 -4 26 Z"/>
+            <circle cx="2" cy="18" r="3"/>
+            <circle cx="16" cy="28" r="3"/>
+            <circle cx="32" cy="8" r="3"/>
+            <circle cx="48" cy="28" r="3"/>
+            <circle cx="62" cy="18" r="3"/>
+            <rect x="6" y="48" width="52" height="8" rx="3"/>
+        </svg>
+        <div class="cartes-deco">
+            <div class="carte-deco carte-pique">♠</div>
+            <div class="carte-deco carte-coeur">♥</div>
+            <div class="carte-deco carte-trefle">♣</div>
+        </div>
+        <h1>Le Président</h1>
+        <p class="accueil-soustitre">Bats l'IA. Vide ta main. Deviens Président.</p>
+        <button id="btn-commencer">Jouer</button>
+    </div>
+
+    <div id ="ecran-jeu">
     <!-- MAIN ADVERSAIRE (face cachée) -->
-    <div class="zone-adversaire">
-        <div class="adversaire-label">
-            <span class="dot-adversaire"></span>
-            Joueur 2
-        </div>
-        <div class="main-eventail" id="main-joueur2"></div>
-    </div>
-
-    <!-- TAPIS CENTRAL -->
-    <div class="tapis">
-
-        <!-- Indicateur de tour -->
-        <div class="indicateur-tour" id="indicateur-tour">
-            <span class="pulse-dot" id="pulse-dot"></span>
-            <span id="texte-tour">À toi de jouer</span>
+        <div class="zone-adversaire">
+            <div class="adversaire-label">
+                <span class="dot-adversaire"></span>
+                Joueur 2
+            </div>
+            <div class="main-eventail" id="main-joueur2"></div>
         </div>
 
-        <!-- Zone des cartes jouées (pli) -->
-        <div class="pli-zone" id="pli"></div>
+        <!-- TAPIS CENTRAL -->
+        <div class="tapis">
 
-        <!-- Statut dernière action -->
-        <div class="statut-action" id="statut-action"></div>
+            <!-- Indicateur de tour -->
+            <div class="indicateur-tour" id="indicateur-tour">
+                <span class="pulse-dot" id="pulse-dot"></span>
+                <span id="texte-tour">À toi de jouer</span>
+            </div>
 
-    </div>
+            <!-- Zone des cartes jouées (pli) -->
+            <div class="pli-zone" id="pli"></div>
 
-    <!-- MAIN JOUEUR 1 (éventail) -->
-    <div class="zone-joueur">
-        <div class="main-eventail" id="main-joueur1"></div>
+            <!-- Statut dernière action -->
+            <div class="statut-action" id="statut-action"></div>
 
-        <!-- Boutons -->
-        <div class="boutons-zone">
-            <button id="rejouer" class="btn-rejouer">↺ Rejouer</button>
-            <button id="passer" class="btn-passer">Passer</button>
-            <button id="jouer" class="btn-jouer">Jouer</button>
         </div>
 
-        <!-- Message -->
-        <div id="message-zone"></div>
-    </div>
+        <!-- MAIN JOUEUR 1 (éventail) -->
+        <div class="zone-joueur">
+            <div class="main-eventail" id="main-joueur1"></div>
 
+            <!-- Boutons -->
+            <div class="boutons-zone">
+                <button id="rejouer" class="btn-rejouer">↺ Rejouer</button>
+                <button id="passer" class="btn-passer">Passer</button>
+                <button id="jouer" class="btn-jouer">Jouer</button>
+            </div>
+
+            <!-- Message -->
+            <div id="message-zone"></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

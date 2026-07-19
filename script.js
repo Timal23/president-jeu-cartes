@@ -29,12 +29,14 @@ let nbCartesJouees = 1;
 // ═══════════════════════════════════════════════════
 const conteneurJoueur1 = document.getElementById('main-joueur1');
 const conteneurJoueur2 = document.getElementById('main-joueur2');
-const conteneursJoueur  = [conteneurJoueur1, conteneurJoueur2];
-const conteneurPli      = document.getElementById('pli');
-const messageZone       = document.getElementById('message-zone');
-const indicateurTour    = document.getElementById('texte-tour');
-const statutAction      = document.getElementById('statut-action');
-const pulseDot          = document.getElementById('pulse-dot');
+const conteneursJoueur = [conteneurJoueur1, conteneurJoueur2];
+const conteneurPli     = document.getElementById('pli');
+const messageZone      = document.getElementById('message-zone');
+const indicateurTour   = document.getElementById('texte-tour');
+const statutAction     = document.getElementById('statut-action');
+const pulseDot         = document.getElementById('pulse-dot');
+const ecranAccueil     = document.getElementById('ecran-accueil');
+const ecranJeu         = document.getElementById('ecran-jeu');
 
 // ═══════════════════════════════════════════════════
 // UTILITAIRES
@@ -386,6 +388,11 @@ document.getElementById('passer').addEventListener('click', () => {
 document.getElementById('rejouer').addEventListener('click', () => {
     initialiserPartie();
 });
+
+document.getElementById('btn-commencer').addEventListener('click', () => {
+    ecranAccueil.style.display = 'none';
+    ecranJeu.style.display = 'flex';
+})
 
 // ═══════════════════════════════════════════════════
 // LANCEMENT
