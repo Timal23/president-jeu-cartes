@@ -23,6 +23,7 @@ let partieTerminer = false;
 let president = null;
 let trouDuCul = null;
 let nbCartesJouees = 1;
+let difficulteIA = 'normal';
 
 // ═══════════════════════════════════════════════════
 // RÉFÉRENCES DOM (nouveau HTML)
@@ -37,6 +38,8 @@ const statutAction     = document.getElementById('statut-action');
 const pulseDot         = document.getElementById('pulse-dot');
 const ecranAccueil     = document.getElementById('ecran-accueil');
 const ecranJeu         = document.getElementById('ecran-jeu');
+const btnFacile        = document.getElementById('btn-facile');
+const btnNormal        = document.getElementById('btn-normal');
 
 // ═══════════════════════════════════════════════════
 // UTILITAIRES
@@ -291,11 +294,20 @@ function jouerIA(nbCartes = 1) {
             .filter(c => c.valeur === valeurLaPlusFaible)
             .map(c => ({ carte: c, element: null }));
     } else {
-        const valeurTrouvee = valeurs.find(valeur =>
-            mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
-            &&
-            valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
-        );
+        let valeurTrouvee;
+        if (difficulteIA === 'facile') {
+            valeurTrouvee = valeurs.findLast(valeur =>
+                mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
+                &&
+                valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
+            );
+        } else {
+            valeurTrouvee = valeurs.find( valeur =>
+                mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
+                &&
+                valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
+            );
+        }
         if (!valeurTrouvee) return passerIA();
         const cartesMemValeur = mainTriee.filter(c => c.valeur === valeurTrouvee);
             cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({ carte: c, element: null }));
@@ -392,7 +404,19 @@ document.getElementById('rejouer').addEventListener('click', () => {
 document.getElementById('btn-commencer').addEventListener('click', () => {
     ecranAccueil.style.display = 'none';
     ecranJeu.style.display = 'flex';
-})
+});
+
+btnFacile.addEventListener('click', () => {
+    difficulteIA = 'facile';
+    btnFacile.classList.add('actif');
+    btnNormal.classList.remove('actif');
+});
+
+btnNormal.addEventListener('click', () => {
+    difficulteIA = 'normal';
+    btnNormal.classList.add('actif');
+    btnFacile.classList.remove('actif');
+});
 
 // ═══════════════════════════════════════════════════
 // LANCEMENT
@@ -400,3 +424,10 @@ document.getElementById('btn-commencer').addEventListener('click', () => {
 setIndicateurTour();
 afficherMain(joueurs[0], conteneurJoueur1);
 afficherMain(joueurs[1], conteneurJoueur2);
+
+
+
+joueur[1].main = [
+    {valeur: '5', couleurs:'coeur'},
+    {valeur: 'As', couleurs:'pique'}
+];
