@@ -380,3 +380,7 @@ button {
     background: var(--corail);
     color: white;
 }
+
+#ecran-fin {
+    display: none;
+}

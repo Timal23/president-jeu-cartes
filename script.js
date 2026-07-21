@@ -40,7 +40,9 @@ const ecranAccueil     = document.getElementById('ecran-accueil');
 const ecranJeu         = document.getElementById('ecran-jeu');
 const btnFacile        = document.getElementById('btn-facile');
 const btnNormal        = document.getElementById('btn-normal');
-
+const ecranFin         = document.getElementById('ecran-fin');
+const finResultat      = document.getElementById('fin-resultat');
+const btnRejouerFin    = document.getElementById('btn-rejouer-fin');
 // ═══════════════════════════════════════════════════
 // UTILITAIRES
 // ═══════════════════════════════════════════════════
@@ -225,6 +227,12 @@ function jouerCoup(cartesJouees) {
             president = joueurs[joueurActif];
             trouDuCul = joueurs[(joueurActif + 1) % joueurs.length];
             partieGagnee = true;
+            if (joueurActif === 0) {
+                finResultat.textContent = 'Tu es président 👑 - L\'IA est Trou du cul 💩';
+            } else {
+                finResultat.textContent = 'L\' Ia est  président 👑 - Tu es Trou du cul 💩';
+            }
+            ecranFin.style.display = 'flex';
         }
     });
 
@@ -415,6 +423,11 @@ btnNormal.addEventListener('click', () => {
     btnNormal.classList.add('actif');
     btnFacile.classList.remove('actif');
 });
+
+btnRejouerFin.addEventListener('click', () => {
+    ecranFin.style.display = 'none';
+    initialiserPartie();
+})
 
 // ═══════════════════════════════════════════════════
 // LANCEMENT
