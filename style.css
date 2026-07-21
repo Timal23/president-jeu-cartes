@@ -393,6 +393,7 @@ button {
     align-items: center;
     justify-content: center;
     gap: 20px;
+    animation: apparition-fin 0.6s ease;
 }
 
 #fin-titre {
@@ -400,4 +401,23 @@ button {
     font-size: clamp(32px, 9vw, 64px);
     color: var(--creme);
     text-align: center;
+}
+
+@keyframes apparition-fin {
+    from {
+        opacity: 0;
+        transform: translateY(30PX);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fin-contenu {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    gap: 20px;
+    animation: montee-contenu 0.8s ease 01.15s backwards;
 }
