@@ -383,4 +383,21 @@ button {
 
 #ecran-fin {
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 34, 51, 0.92);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#fin-titre {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(32px, 9vw, 64px);
+    color: var(--creme);
+    text-align: center;
 }

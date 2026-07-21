@@ -222,7 +222,7 @@ function jouerCoup(cartesJouees) {
         joueurs[joueurActif].main = joueurs[joueurActif].main.filter(c => c !== carte);
         if (joueurs[joueurActif].main.length === 0) {
             setMessage(`🏆 Joueur ${joueurActif + 1} a gagné !`);
-            setStatut(joueurActif === 0 ? 'Tu es Président !' : "L'IA est Présidente !");
+            setStatut(joueurActif === 0 ? 'Tu es Président !' : "L'IA est Président !");
             partieTerminer = true;
             president = joueurs[joueurActif];
             trouDuCul = joueurs[(joueurActif + 1) % joueurs.length];
