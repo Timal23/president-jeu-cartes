@@ -294,20 +294,18 @@ function jouerIA(nbCartes = 1) {
             .filter(c => c.valeur === valeurLaPlusFaible)
             .map(c => ({ carte: c, element: null }));
     } else {
-        let valeurTrouvee;
+        let methode;
         if (difficulteIA === 'facile') {
-            valeurTrouvee = valeurs.findLast(valeur =>
-                mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
-                &&
-                valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
-            );
+            methode = 'findLast';
         } else {
-            valeurTrouvee = valeurs.find( valeur =>
+            methode = 'find';
+        }
+        const valeurTrouvee =  valeurs[methode](valeur =>
                 mainTriee.filter(c => c.valeur === valeur).length >= nbCartes
                 &&
                 valeurs.indexOf(valeur) >= getForce(dernierCoup[dernierCoup.length -1].carte)
             );
-        }
+        
         if (!valeurTrouvee) return passerIA();
         const cartesMemValeur = mainTriee.filter(c => c.valeur === valeurTrouvee);
             cartesAJouer = cartesMemValeur.slice(0, nbCartes).map(c => ({ carte: c, element: null }));
