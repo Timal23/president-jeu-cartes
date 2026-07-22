@@ -145,7 +145,8 @@ function afficherMain(joueur, conteneur) {
             el = creerCarteElement('dos');
         }
 
-        el.style.left   = `calc(50% + ${delta * offsetX}px - var(--card-w) / 2)`;
+        el.style.left   = `calc(50% + ${delta * offsetX}px;
+        el.style.marginLeft = calc(var(--card-w) / 2)`;
         el.style.bottom = `${translateY}px`;
         el.style.transform = `rotate(${rotation}deg)`;
         el.style.zIndex = i;
