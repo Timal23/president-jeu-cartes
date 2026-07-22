@@ -419,5 +419,16 @@ button {
     flex-direction:column;
     align-items: center;
     gap: 20px;
-    animation: montee-contenu 0.8s ease 01.15s backwards;
+    animation: montee-contenu 0.8s ease 0.15s backwards;
+}
+
+@keyframes montee-contenu {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
