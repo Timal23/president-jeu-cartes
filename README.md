@@ -10,31 +10,35 @@
 
 Le Président est un jeu de cartes populaire en France, mais introuvable en version web jouable directement dans le navigateur. J'ai donc décidé de le construire moi-même, étape par étape, en pur HTML/CSS/JS — sans framework, sans bibliothèque externe.
 
+Le jeu oppose **le joueur à une IA** dont on peut choisir le niveau.
+
 ---
 
 ## Règles du jeu
 
-- 2 joueurs (extensible)
-- On pose des cartes de **même valeur** ou **plus forte** que le dernier coup
+- **1 joueur contre une IA**
+- On pose des cartes de **même valeur** ou **plus forte** que le dernier coup, en respectant le nombre de cartes posées (si l'adversaire pose une paire, on répond par une paire)
 - Le **2** est la carte la plus forte — jouer un 2 ferme automatiquement le pli
-- **4 cartes identiques** posées = le pli se ferme automatiquement
+- **4 cartes de même valeur** cumulées sur le pli le ferment automatiquement
 - Premier à vider sa main = **Président** 👑
 - Dernier avec des cartes = **Trou du cul** 💩
-- À la partie suivante : le Trou du cul donne ses **2 meilleures cartes** au Président, qui lui rend ses **2 pires cartes**
+- À la partie suivante : le Trou du cul donne ses **2 meilleures cartes** au Président, qui lui rend ses **2 pires cartes**, et le Trou du cul commence
 
 ---
 
 ## Fonctionnalités
 
 - 🃏 Génération et mélange du paquet (algorithme Fisher-Yates)
-- 🎴 Affichage des cartes avec symboles (♥ ♦ ♣ ♠) et couleurs rouge/noir
+- 🎴 Affichage des cartes en éventail, avec symboles (♥ ♦ ♣ ♠) et couleurs rouge/noir
 - 🔒 Main de l'adversaire cachée (dos de carte)
-- ✅ Validation des coups (même valeur, force supérieure ou égale)
+- ✅ Validation des coups (même valeur, même nombre de cartes, force supérieure ou égale)
+- 🤖 IA adversaire avec **deux niveaux de difficulté** (Facile / Normal)
 - 🔄 Alternance des tours
 - ⏭️ Bouton Passer
 - 🏆 Détection de fin de partie
 - 🔁 Bouton Rejouer avec échange de cartes entre parties
-- 🎨 Thème visuel "bar speakeasy" (bois sombre, cuivre, typographie rétro)
+- 🎬 Écran d'accueil animé (cartes flottantes) et écran de fin animé
+- 🎨 Interface moderne : dégradé bleu nuit, accents corail et crème, typographie Fredoka
 
 ---
 
@@ -42,7 +46,7 @@ Le Président est un jeu de cartes populaire en France, mais introuvable en vers
 
 - **HTML5** — structure
 - **CSS3** — flexbox, variables CSS, animations, Google Fonts
-- **JavaScript Vanilla** — logique de jeu, manipulation du DOM
+- **JavaScript Vanilla** — logique de jeu, IA, manipulation du DOM
 
 Aucun framework, aucune dépendance externe.
 
@@ -66,6 +70,7 @@ Ce projet m'a permis de pratiquer concrètement :
 - La gestion d'état d'une application (tours, pli, fin de partie)
 - La manipulation dynamique du DOM (createElement, appendChild, remove)
 - La logique de comparaison personnalisée (force des cartes)
+- La logique d'une IA adversaire (choix du coup, niveaux de difficulté)
 - Le déploiement sur GitHub Pages
 
 ---
