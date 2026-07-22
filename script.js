@@ -129,7 +129,7 @@ function afficherMain(joueur, conteneur) {
 
     const estActif = joueurs.indexOf(joueur) === joueurActif;
     const cardW    = Math.max(58, Math.min(window.innerWidth * 0.08, 76))
-    const spread   = Math.min(4, 50 / n); // degrés entre chaque carte
+    const spread   = Math.min(4, 30 / n); // degrés entre chaque carte
     const offsetX  = Math.min(52, (window.innerWidth - cardW - 55) / (n - 1)); // px entre chaque carte
 
     joueur.main.forEach((carte, i) => {
