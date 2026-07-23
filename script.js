@@ -127,10 +127,11 @@ function afficherMain(joueur, conteneur) {
     const n = joueur.main.length;
     if (n === 0) return;
 
-    const estActif = joueurs.indexOf(joueur) === joueurActif;
-    const cardW    = Math.max(58, Math.min(window.innerWidth * 0.08, 76))
-    const spread   = Math.min(4, 30 / n); // degrés entre chaque carte
-    const offsetX  = Math.min(52, (window.innerWidth - cardW - 75) / (n - 1)); // px entre chaque carte
+    const estActif     = joueurs.indexOf(joueur) === joueurActif;
+    const cardW        = Math.max(58, Math.min(window.innerWidth * 0.08, 76))
+    const spread       = Math.min(4, 30 / n); // degrés entre chaque carte
+    const largeurDispo = conteneur.offsetWidth || window.innerWidth;
+    const offsetX      = Math.min(52, (largeurDispo - cardW - 48) / (n - 1)); // px entre chaque carte
 
     joueur.main.forEach((carte, i) => {
         const milieu  = (n - 1) / 2;
